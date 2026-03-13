@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Inmobiliario Scraper</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <header>
+            <h1>🏠 Portal Inmobiliario Scraper</h1>
+            <p class="subtitle">Extrae datos de propiedades de portalinmobiliario.com</p>
+        </header>
+
+        <main>
+            <!-- Mode Selector -->
+            <section class="card mode-selector">
+                <h2>Modo de Scraping</h2>
+                <div class="mode-tabs">
+                    <button class="mode-tab active" data-mode="filters" onclick="setMode('filters')">
+                        <span class="tab-icon">🔍</span>
+                        Búsqueda con Filtros
+                    </button>
+                    <button class="mode-tab" data-mode="url" onclick="setMode('url')">
+                        <span class="tab-icon">🔗</span>
+                        URL Personalizada
+                    </button>
+                </div>
+            </section>
+
+            <!-- Filters Panel -->
+            <section class="card filters-panel" id="filtersPanel">
+                <h2>Filtros de Búsqueda</h2>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label for="operacion">Tipo de Operación</label>
+                        <select id="operacion">
+                            <option value="venta">Venta</option>
+                            <option value="arriendo">Arriendo</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="tipoPropiedad">Tipo de Propiedad</label>
+                        <select id="tipoPropiedad">
+                            <option value="departamento">Departamento</option>
+                            <option value="casa">Casa</option>
+                            <option value="parcela">Parcela</option>
+                            <option value="oficina">Oficina</option>
+                            <option value="local">Local Comercial</option>
+                            <option value="terreno">Terreno</option>
+                            <option value="estacionamiento">Estacionamiento</option>
+                            <option value="bodega">Bodega</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="region">Región</label>
+                        <select id="region">
+                            <option value="">Todas las regiones</option>
+                            <option value="arica-y-parinacota">Arica y Parinacota</option>
+                            <option value="tarapaca">Tarapacá</option>
+                            <option value="antofagasta">Antofagasta</option>
+                            <option value="atacama">Atacama</option>
+                            <option value="coquimbo">Coquimbo</option>
+                            <option value="valparaiso">Valparaíso</option>
+                            <option value="metropolitana">Metropolitana</option>
+                            <option value="ohiggins">O'Higgins</option>
+                            <option value="maule">Maule</option>
+                            <option value="nuble">Ñuble</option>
+                            <option value="biobio">Biobío</option>
+                            <option value="araucania">Araucanía</option>
+                            <option value="los-rios">Los Ríos</option>
+                            <option value="los-lagos">Los Lagos</option>
+                            <option value="aysen">Aysén</option>
+                            <option value="magallanes">Magallanes</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="comuna">Comuna</label>
+                        <select id="comuna">
+                            <option value="">Todas las comunas</option>
+                            <optgroup label="Región Metropolitana">
+                                <option value="santiago">Santiago</option>
+                                <option value="providencia">Providencia</option>
+                                <option value="las condes">Las Condes</option>
+                                <option value="vitacura">Vitacura</option>
+                                <option value="lo barnechea">Lo Barnechea</option>
+                                <option value="ñuñoa">Ñuñoa</option>
+                                <option value="la reina">La Reina</option>
+                                <option value="macul">Macul</option>
+                                <option value="peñalolén">Peñalolén</option>
+                                <option value="la florida">La Florida</option>
+                                <option value="puente alto">Puente Alto</option>
+                                <option value="maipú">Maipú</option>
+                                <option value="estación central">Estación Central</option>
+                                <option value="cerrillos">Cerrillos</option>
+                                <option value="recoleta">Recoleta</option>
+                                <option value="independencia">Independencia</option>
+                                <option value="quilicura">Quilicura</option>
+                                <option value="huechuraba">Huechuraba</option>
+                                <option value="conchalí">Conchalí</option>
+                                <option value="renca">Renca</option>
+                                <option value="san miguel">San Miguel</option>
+                                <option value="san joaquín">San Joaquín</option>
+                                <option value="la cisterna">La Cisterna</option>
+                                <option value="el bosque">El Bosque</option>
+                                <option value="san bernardo">San Bernardo</option>
+                                <option value="lo prado">Lo Prado</option>
+                                <option value="pudahuel">Pudahuel</option>
+                                <option value="quinta normal">Quinta Normal</option>
+                                <option value="colina">Colina</option>
+                                <option value="lampa">Lampa</option>
+                                <option value="buin">Buin</option>
+                                <option value="peñaflor">Peñaflor</option>
+                                <option value="talagante">Talagante</option>
+                                <option value="melipilla">Melipilla</option>
+                            </optgroup>
+                            <optgroup label="Valparaíso">
+                                <option value="valparaíso">Valparaíso</option>
+                                <option value="viña del mar">Viña del Mar</option>
+                                <option value="concón">Concón</option>
+                                <option value="quilpué">Quilpué</option>
+                                <option value="villa alemana">Villa Alemana</option>
+                                <option value="san antonio">San Antonio</option>
+                                <option value="quillota">Quillota</option>
+                            </optgroup>
+                            <optgroup label="Coquimbo">
+                                <option value="la serena">La Serena</option>
+                                <option value="coquimbo">Coquimbo</option>
+                            </optgroup>
+                            <optgroup label="Biobío / Ñuble">
+                                <option value="concepción">Concepción</option>
+                                <option value="talcahuano">Talcahuano</option>
+                                <option value="chillán">Chillán</option>
+                            </optgroup>
+                            <optgroup label="Araucanía">
+                                <option value="temuco">Temuco</option>
+                            </optgroup>
+                            <optgroup label="Los Lagos">
+                                <option value="puerto montt">Puerto Montt</option>
+                                <option value="osorno">Osorno</option>
+                            </optgroup>
+                            <optgroup label="Otras">
+                                <option value="antofagasta">Antofagasta</option>
+                                <option value="copiapó">Copiapó</option>
+                                <option value="rancagua">Rancagua</option>
+                                <option value="talca">Talca</option>
+                                <option value="valdivia">Valdivia</option>
+                                <option value="arica">Arica</option>
+                                <option value="iquique">Iquique</option>
+                                <option value="punta arenas">Punta Arenas</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Rango de Precio (CLP)</label>
+                        <div class="range-inputs">
+                            <input type="number" id="precioMin" placeholder="Mínimo">
+                            <span class="range-sep">-</span>
+                            <input type="number" id="precioMax" placeholder="Máximo">
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Superficie (m²)</label>
+                        <div class="range-inputs">
+                            <input type="number" id="superficieMin" placeholder="Mínimo">
+                            <span class="range-sep">-</span>
+                            <input type="number" id="superficieMax" placeholder="Máximo">
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="habitaciones">Habitaciones</label>
+                        <select id="habitaciones">
+                            <option value="">Cualquiera</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5+</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="banos">Baños</label>
+                        <select id="banos">
+                            <option value="">Cualquiera</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4+</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group checkboxes">
+                        <label>Características Adicionales</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="conEstacionamiento">
+                                Estacionamiento
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="conBodega">
+                                Bodega
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="amoblado">
+                                Amoblado
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- URL Panel -->
+            <section class="card url-panel hidden" id="urlPanel">
+                <h2>URL Personalizada</h2>
+                <p class="help-text">Pega una URL de búsqueda de portalinmobiliario.com</p>
+                <div class="url-input-group">
+                    <input type="url" id="customUrl"
+                           placeholder="https://www.portalinmobiliario.com/venta/departamento/..."
+                           class="url-input">
+                    <span class="url-validation" id="urlValidation"></span>
+                </div>
+            </section>
+
+            <!-- Scraping Controls -->
+            <section class="card controls">
+                <div class="controls-row">
+                    <div class="filter-group">
+                        <label for="maxPages">Máx. Páginas</label>
+                        <input type="number" id="maxPages" value="5" min="1" max="50">
+                    </div>
+                    <div class="filter-group">
+                        <label for="maxProperties">Máx. Propiedades</label>
+                        <input type="number" id="maxProperties" value="50" min="1" max="500">
+                    </div>
+                    <div class="controls-buttons">
+                        <button class="btn btn-primary" id="btnStart" onclick="startScraping()">
+                            ▶ Iniciar Scraping
+                        </button>
+                        <button class="btn btn-danger hidden" id="btnCancel" onclick="cancelScraping()">
+                            ⏹ Cancelar
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Progress -->
+            <section class="card hidden" id="progressSection">
+                <h2>Progreso</h2>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar">
+                        <span class="progress-text" id="progressText">0%</span>
+                    </div>
+                </div>
+                <div class="log-container" id="logContainer"></div>
+            </section>
+
+            <!-- Results -->
+            <section class="card hidden" id="resultsSection">
+                <div class="results-header">
+                    <h2>Resultados <span class="results-count" id="resultsCount"></span></h2>
+                    <button class="btn btn-success" id="btnDownload" onclick="downloadCSV()">
+                        📥 Descargar CSV
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Título</th>
+                                <th>Precio</th>
+                                <th>Ubicación</th>
+                                <th>Tipo</th>
+                                <th>Sup. Construida</th>
+                                <th>Hab.</th>
+                                <th>Baños</th>
+                                <th>Link</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
