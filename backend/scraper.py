@@ -248,7 +248,16 @@ INIT_SCRIPT = """
     Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
     Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]});
     Object.defineProperty(navigator, 'languages', {get: () => ['es-CL', 'es', 'en']});
-    window.chrome = { runtime: {} };
+    window.chrome = { runtime: {}, loadTimes: () => ({}), csi: () => ({}) };
+    Object.defineProperty(navigator, 'maxTouchPoints', {get: () => 1});
+    Object.defineProperty(navigator, 'platform', {get: () => 'Win32'});
+    Object.defineProperty(navigator, 'hardwareConcurrency', {get: () => 8});
+    Object.defineProperty(navigator, 'deviceMemory', {get: () => 8});
+    const originalQuery = window.navigator.permissions.query;
+    window.navigator.permissions.query = (parameters) =>
+        parameters.name === 'notifications'
+            ? Promise.resolve({ state: Notification.permission })
+            : originalQuery(parameters);
 """
 
 
@@ -285,10 +294,13 @@ class PortalScraper:
             user_agent=(
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/120.0.0.0 Safari/537.36"
+                "Chrome/131.0.0.0 Safari/537.36"
             ),
             viewport={"width": 1920, "height": 1080},
             locale="es-CL",
+            timezone_id="America/Santiago",
+            geolocation={"latitude": -33.4489, "longitude": -70.6693},
+            permissions=["geolocation"],
         )
         await self.context.add_init_script(INIT_SCRIPT)
         self.page = await self.context.new_page()
@@ -301,16 +313,40 @@ class PortalScraper:
             await self._pw.stop()
             self._pw = None
 
-    async def _navigate(self, page: Page, url: str, wait_selector: str = "") -> str:
-        """Navigate and wait smartly - no fixed sleeps."""
+    async def _navigate(self, page: Page, url: str, wait_selector: str = "", retries: int = 3) -> str:
+        """Navigate, handle verification challenges, and wait smartly."""
         await page.goto(url, wait_until="domcontentloaded", timeout=45000)
+
+        # Handle MercadoLibre account-verification challenge
+        for attempt in range(retries):
+            current_url = page.url
+            if "/gz/account-verification" not in current_url and "/gz/challenge" not in current_url:
+                break
+
+            await self._emit({
+                "type": "info",
+                "message": f"Challenge de verificación detectado (intento {attempt + 1}/{retries}). Esperando resolución...",
+            })
+
+            # Wait for the JS challenge to resolve and redirect back
+            try:
+                await page.wait_for_load_state("networkidle", timeout=15000)
+                await page.wait_for_url(
+                    lambda u: "/gz/account-verification" not in u and "/gz/challenge" not in u,
+                    timeout=30000,
+                )
+            except Exception:
+                # Challenge didn't resolve, retry navigation
+                if attempt < retries - 1:
+                    await asyncio.sleep(3)
+                    await page.goto(url, wait_until="domcontentloaded", timeout=45000)
+
         if wait_selector:
             try:
-                await page.wait_for_selector(wait_selector, timeout=10000)
+                await page.wait_for_selector(wait_selector, timeout=15000)
             except Exception:
-                # Fallback: wait for network idle briefly
                 try:
-                    await page.wait_for_load_state("networkidle", timeout=5000)
+                    await page.wait_for_load_state("networkidle", timeout=8000)
                 except Exception:
                     pass
         else:
