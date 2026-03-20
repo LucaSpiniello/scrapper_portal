@@ -682,6 +682,23 @@ class PortalScraper:
                     wait_selector="ol.ui-search-layout, .ui-search-results"
                 )
 
+                # Diagnóstico: reportar título y URL final de la página
+                page_title = await self.page.title()
+                page_url = self.page.url
+                await self._emit({
+                    "type": "info",
+                    "message": f"Página cargada - Título: '{page_title}' | URL: {page_url}",
+                })
+
+                # Detectar bloqueos comunes (CAPTCHA, challenge, access denied)
+                body_text = await self.page.evaluate("() => document.body?.innerText?.substring(0, 500) || ''")
+                blocked_signals = ["captcha", "challenge", "blocked", "access denied", "robot", "verificar"]
+                if any(sig in body_text.lower() for sig in blocked_signals):
+                    await self._emit({
+                        "type": "warning",
+                        "message": f"Posible bloqueo detectado. Contenido de la página: {body_text[:300]}",
+                    })
+
                 if page_num == 1:
                     total = await self.get_total_results(self.page)
                     await self._emit({
